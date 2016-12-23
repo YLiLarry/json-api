@@ -19,7 +19,11 @@ module Network.JSONApi
 , R.mkRelationship
 , R.mkRelationships
 , D.mkDocument
+, D.mkDocumentSingle
+, D.mkDocumentArray
 , D.mkCompoundDocument
+, D.mkCompoundDocumentSingle
+, D.mkCompoundDocumentArray
 , D.mkIncludedResource
 , M.mkMeta
 ) where
