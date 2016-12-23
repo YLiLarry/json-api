@@ -6,7 +6,11 @@ module Network.JSONApi.Document
   , ErrorDocument (..)
   , Included
   , mkDocument
+  , mkDocumentArray
+  , mkDocumentSingle
   , mkCompoundDocument
+  , mkCompoundDocumentArray
+  , mkCompoundDocumentSingle
   , mkIncludedResource
   ) where
 
@@ -101,6 +105,32 @@ mkDocument res links meta =
     , _included = []
     }
 
+mkDocumentArray :: ResourcefulEntity a =>
+              [a]
+           -> Maybe Links
+           -> Maybe Meta
+           -> Document a
+mkDocumentArray res links meta =
+  Document
+    { _data = toResourceDataArray res
+    , _links = links
+    , _meta = meta
+    , _included = []
+    }
+
+mkDocumentSingle :: ResourcefulEntity a =>
+              a
+           -> Maybe Links
+           -> Maybe Meta
+           -> Document a
+mkDocumentSingle res links meta =
+  Document
+    { _data = toResourceDataSingle res
+    , _links = links
+    , _meta = meta
+    , _included = []
+    }
+
 {- |
 Constructor function for the Document data type.
 See 'mkIncludedResource' for constructing the 'Included' type.
@@ -122,6 +152,34 @@ mkCompoundDocument res links meta (Included included) =
     , _included = included
     }
 
+mkCompoundDocumentArray :: ResourcefulEntity a =>
+                      [a]
+                   -> Maybe Links
+                   -> Maybe Meta
+                   -> Included
+                   -> Document a
+mkCompoundDocumentArray res links meta (Included included) =
+  Document
+    { _data = toResourceDataArray res
+    , _links = links
+    , _meta = meta
+    , _included = included
+    }
+
+mkCompoundDocumentSingle :: ResourcefulEntity a =>
+                      a
+                   -> Maybe Links
+                   -> Maybe Meta
+                   -> Included
+                   -> Document a
+mkCompoundDocumentSingle res links meta (Included included) =
+  Document
+    { _data = toResourceDataSingle res
+    , _links = links
+    , _meta = meta
+    , _included = included
+    }
+
 {- |
 Constructor function for the Document data type.
 
@@ -134,6 +192,12 @@ mkIncludedResource res = Included [AE.toJSON . R.toResource $ res]
 toResourceData :: ResourcefulEntity a => [a] -> ResourceData a
 toResourceData (r:[]) = Singleton (R.toResource r)
 toResourceData rs     = List (map R.toResource rs)
+
+toResourceDataArray :: ResourcefulEntity a => [a] -> ResourceData a
+toResourceDataArray rs = List (map R.toResource rs)
+
+toResourceDataSingle :: ResourcefulEntity a => a -> ResourceData a
+toResourceDataSingle rs = Singleton (R.toResource rs)
 
 {- |
 The 'Resource' type encapsulates the underlying 'Resource'
